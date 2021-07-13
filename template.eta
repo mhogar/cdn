@@ -1,0 +1,6 @@
+<ul>
+<h3><%= it.dirname %></h3>
+<% it.items.forEach(function(item){ %>
+    <li><a href="<%= item %>"><%= item %></a></li>
+<% }) %>
+</ul>
