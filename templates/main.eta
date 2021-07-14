@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="<%= it.icon %>" />
+        <title>cdn.mhogar.dev</title>
+        <link href="<%= it.bootstrap %>" rel="stylesheet">
+        <style>
+            body {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+        </style>
+    </head>
+    <body class="container">
+        <ul class="list-group list-group-flush">
+        <h3><%= it.path %></h3>
+        <% if (it.path != '/') { %>
+            <li class="list-group-item"><a href=".."><-</a></li>
+        <% } %>
+        <% it.items.forEach(function(item){ %>
+            <li class="list-group-item">
+                <%~ includeFile(item.type + '_icon') %>
+                <a href="<%= item.link %>"><%= item.name %></a>
+            </li>
+        <% }) %>
+        </ul>
+    </body>
+</html>
