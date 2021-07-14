@@ -62,7 +62,7 @@ async function renderIndexFile(root, path, fileInfos) {
     const data = fileInfos.map(fileInfo => {
         return {
             name: fileInfo.filename,
-            type: getFileType(fileInfo.filename),
+            type: getFileType(fileInfo),
             link: fileInfo.isDir ? pathUtil.join(path, fileInfo.filename, 'index.html') : pathUtil.join(path, fileInfo.filename)
         }
     })
@@ -70,17 +70,23 @@ async function renderIndexFile(root, path, fileInfos) {
     const result = await eta.renderFile('main', {
         icon: pathUtil.join(assetsDir, 'favicon.svg'),
         bootstrap: pathUtil.join(assetsDir, 'bootstrap.min.css'),
+        stylesheet: pathUtil.join(assetsDir, 'style.css'),
         path: path, 
         items: data 
     })
     await writeFile(pathUtil.join(DIST_DIR, path, 'index.html'), result)
 }
 
-function getFileType(filename) {
-    const ext = pathUtil.extname(filename)
-    switch (ext) {
-        case '':
-            return 'folder'
+function getFileType(fileInfo) {
+    if (fileInfo.isDir) {
+        return 'folder'
+    }
+
+    switch (pathUtil.extname(fileInfo.filename)) {
+        case '.html':
+        case '.css':
+        case '.js':
+            return 'code'
         case '.png':
         case '.jpg':
         case '.jpeg':
@@ -88,6 +94,20 @@ function getFileType(filename) {
             return 'image'
         case '.txt':
             return 'text'
+        case '.ttf':
+        case '.otf':
+            return 'font'
+        case '.mp3':
+        case '.wav':
+            return 'audio'
+        case '.pdf':
+            return 'pdf'
+        case '.zip':
+        case '.gz':
+            return 'zip'
+        case '.mp4':
+        case '.mkv':
+            return 'video'
         default:
             return 'binary'
     }

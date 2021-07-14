@@ -4,12 +4,7 @@
         <link rel="icon" href="<%= it.icon %>" />
         <title>cdn.mhogar.dev</title>
         <link href="<%= it.bootstrap %>" rel="stylesheet">
-        <style>
-            body {
-                padding-top: 3rem;
-                padding-bottom: 3rem;
-            }
-        </style>
+        <link href="<%= it.stylesheet %>" rel="stylesheet">
     </head>
     <body class="container">
         <ul class="list-group list-group-flush">
