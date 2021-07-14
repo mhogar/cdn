@@ -1,6 +1,9 @@
 <ul>
-<h3><%= it.dirname %></h3>
+<h3><%= it.path %></h3>
+<% if (it.path != '/') { %>
+    <li><a href="..">..</a></li>
+<% } %>
 <% it.items.forEach(function(item){ %>
-    <li><a href="<%= item %>"><%= item %></a></li>
+    <li><a href="<%= item.link %>"><%= item.name %></a></li>
 <% }) %>
 </ul>

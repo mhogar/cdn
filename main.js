@@ -5,20 +5,58 @@ const eta = require('eta')
 
 const readDir = util.promisify(fs.readdir)
 const writeFile = util.promisify(fs.writeFile)
+const fileStats = util.promisify(fs.stat)
 
 // Set Eta's configuration
 eta.configure({
     views: __dirname
 })
 
-async function renderDir(path, dirname) {
-    const filenames = await readDir(pathUtil.join(__dirname, 'dist', path))
-    await renderIndexFile(path, dirname, filenames)
+const DIST = pathUtil.join(__dirname, 'dist')
+
+async function renderDir(path) {
+    const filenames = await readDir(pathUtil.join(DIST, path))
+
+    // create a file info from each filename
+    const fileInfos = 
+        (await Promise.all(filenames.map(filename => createFileInfoAsync(path, filename))))
+        .filter(x => x != null)
+        .sort((a, b) => a.isDir ? a : b)
+
+    // render the index file
+    await renderIndexFile(path, fileInfos)
+
+    // recurse if directory
+    await Promise.all(fileInfos.map(fileInfo => {
+        if (fileInfo.isDir) {
+            return renderDir(pathUtil.join(path, fileInfo.filename))
+        }
+    }))
 }
 
-async function renderIndexFile(path, dirname, filenames) {
-    const data = await eta.renderFile('template', { dirname: dirname, items: filenames })
-    await writeFile(pathUtil.join(__dirname, 'dist', path, 'index.html'), data)
+async function createFileInfoAsync(path, filename) {
+    // ignore temporary and index files
+    if (filename[0] == '.' || filename == 'index.html') {
+        return null
+    }
+    const stats = await fileStats(pathUtil.join(DIST, path, filename))
+
+    return {
+        filename: filename,
+        isDir: stats.isDirectory()
+    }
+}
+
+async function renderIndexFile(path, fileInfos) {
+    const data = fileInfos.map(fileInfo => {
+        return {
+            name: fileInfo.filename,
+            link: fileInfo.isDir ? pathUtil.join(path, fileInfo.filename, 'index.html') : pathUtil.join(path, fileInfo.filename)
+        }
+    })
+
+    const result = await eta.renderFile('template', { path: path, items: data })
+    await writeFile(pathUtil.join(DIST, path, 'index.html'), result)
 }
 
 // start at the root
