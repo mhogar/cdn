@@ -7,16 +7,17 @@
         <link href="<%= it.stylesheet %>" rel="stylesheet">
     </head>
     <body class="container">
-        <ul class="list-group list-group-flush">
         <h3><%= it.path %></h3>
+        <hr />
+        <div class="list-group list-group-flush">
         <% if (it.path != '/') { %>
-            <li class="list-group-item"><a href=".."><-</a></li>
+            <a class="list-group-item list-group-item-action" href="<%= it.prev %>">..</a>
         <% } %>
         <% it.items.forEach(function(item){ %>
-            <li class="list-group-item">
+            <a href="<%= item.link %>" class="list-group-item list-group-item-action">
                 <%~ includeFile(item.type + '_icon') %>
-                <a href="<%= item.link %>"><%= item.name %></a>
-            </li>
+                <%= item.name %>
+            </a>
         <% }) %>
         </ul>
     </body>

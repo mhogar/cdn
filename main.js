@@ -71,6 +71,7 @@ async function renderIndexFile(root, path, fileInfos) {
         icon: pathUtil.join(assetsDir, 'favicon.svg'),
         bootstrap: pathUtil.join(assetsDir, 'bootstrap.min.css'),
         stylesheet: pathUtil.join(assetsDir, 'style.css'),
+        prev: pathUtil.join(path, '..'),
         path: path, 
         items: data 
     })
