@@ -12,16 +12,16 @@ eta.configure({
     views: __dirname
 })
 
-const DIST = pathUtil.join(__dirname, 'dist')
+const DIST_DIR = pathUtil.join(__dirname, 'dist')
 
 async function renderDir(path) {
-    const filenames = await readDir(pathUtil.join(DIST, path))
+    const filenames = await readDir(pathUtil.join(DIST_DIR, path))
 
     // create a file info from each filename
     const fileInfos = 
         (await Promise.all(filenames.map(filename => createFileInfoAsync(path, filename))))
         .filter(x => x != null)
-        .sort((a, b) => a.isDir ? a : b)
+        .sort((a, b) => orderFileInfos(a, b))
 
     // render the index file
     await renderIndexFile(path, fileInfos)
@@ -39,7 +39,7 @@ async function createFileInfoAsync(path, filename) {
     if (filename[0] == '.' || filename == 'index.html') {
         return null
     }
-    const stats = await fileStats(pathUtil.join(DIST, path, filename))
+    const stats = await fileStats(pathUtil.join(DIST_DIR, path, filename))
 
     return {
         filename: filename,
@@ -47,16 +47,30 @@ async function createFileInfoAsync(path, filename) {
     }
 }
 
+function orderFileInfos(a, b) {
+    if (a.isDir && b.isDir) {
+        return 0
+    }
+    if (a.isDir) {
+        return -1
+    }
+    return 1
+}
+
 async function renderIndexFile(path, fileInfos) {
     const data = fileInfos.map(fileInfo => {
         return {
             name: fileInfo.filename,
+            isDir: fileInfo.isDir,
             link: fileInfo.isDir ? pathUtil.join(path, fileInfo.filename, 'index.html') : pathUtil.join(path, fileInfo.filename)
         }
     })
 
-    const result = await eta.renderFile('template', { path: path, items: data })
-    await writeFile(pathUtil.join(DIST, path, 'index.html'), result)
+    const result = await eta.renderFile('template', {
+        path: path, 
+        items: data 
+    })
+    await writeFile(pathUtil.join(DIST_DIR, path, 'index.html'), result)
 }
 
 // start at the root
